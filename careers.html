@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LearnFlow AI - Careers</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .jobs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 20px;
+    }
+  </style>
+</head>
+<body class="bg-color text-color font-sans">
+  <div class="app-layout">
+    <div id="sidebar-container"></div>
+    
+    <main class="main-content">
+      <div class="content-area">
+        <!-- Header -->
+        <div class="page-header animate-up">
+          <div class="header-text">
+            <div class="label">OPPORTUNITIES</div>
+            <h1 class="text-3xl font-extrabold mt-1">Career Paths</h1>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 300px; gap: 32px; align-items: start;">
+          <div>
+            <!-- Categories -->
+            <div class="label mb-3 animate-up uppercase text-xs">Categories</div>
+            <div class="chips-row animate-up mb-8" id="category-filters">
+              <div class="chip active" data-cat="All">All Roles</div>
+              <div class="chip" data-cat="AI & Data">AI & Data</div>
+              <div class="chip" data-cat="Engineering">Engineering</div>
+              <div class="chip" data-cat="Web">Web Development</div>
+              <div class="chip" data-cat="Infrastructure">Infrastructure</div>
+            </div>
+
+            <div id="jobs-list" class="animate-up jobs-grid">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+
+          <aside class="animate-up">
+            <!-- Market Insights -->
+            <div class="card-white mb-6 p-6">
+              <div style="width:40px;height:40px;border-radius:12px;background:var(--sky);display:flex;align-items:center;justify-content:center;margin-bottom:16px">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--sky-on)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              </div>
+              <h3 class="text-base font-bold text-on-bg">Market Report</h3>
+              <p class="text-sm text-muted mt-2" style="line-height:1.5">Tech job openings are at an all-time high. Specialized AI roles have seen a <span class="text-success font-bold">68% increase</span> in demand this quarter.</p>
+              <div class="divider" style="margin:20px 0"></div>
+              <div class="badge badge-success" style="font-size:11px">HOT MARKET</div>
+            </div>
+
+            <!-- Top Roles -->
+            <div class="card-white p-6">
+              <div class="label mb-4">Trending Now</div>
+              <div id="hot-jobs-row" style="display:flex; flex-direction:column; gap:12px">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+          </aside>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Insights Modal -->
+  <div class="modal-overlay" id="modal-insights">
+    <div class="modal">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-2xl font-extrabold" id="mi-role">Role Name</h2>
+          <p class="text-sm text-primary font-bold mt-1">AI Market Insights</p>
+        </div>
+        <div class="btn-icon" style="background:var(--sky); width:48px; height:48px"><span style="font-size:24px">✨</span></div>
+      </div>
+
+      <div class="card mb-4 hidden" id="mi-loading">
+        <div class="spinner"></div>
+        <p class="text-center text-sm text-muted mt-3">Analyzing job data...</p>
+      </div>
+
+      <div id="mi-content" class="hidden">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+          <div class="card bg-color text-center p-4">
+            <span class="label">Jr. Range</span>
+            <div class="text-xl font-bold text-success mt-1" id="mi-junior">-</div>
+          </div>
+          <div class="card bg-color text-center p-4">
+            <span class="label">Sr. Range</span>
+            <div class="text-xl font-bold text-success mt-1" id="mi-senior">-</div>
+          </div>
+        </div>
+        
+        <h3 class="text-base font-bold mb-4">Required Expertise</h3>
+        <div id="mi-skills" style="display:flex; flex-direction:column; gap:10px"></div>
+      </div>
+      
+      <button class="btn btn-primary mt-8 w-full" onclick="document.getElementById('modal-insights').classList.remove('open')" style="padding:14px">Got it</button>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/careers.js"></script>
+  <script>
+    document.getElementById('sidebar-container').outerHTML = renderSidebar(3);
+  </script>
+</body>
+</html>

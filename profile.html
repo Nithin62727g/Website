@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LearnFlow AI — Settings</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ── 3D Settings Layout ── */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 36px;
+      align-items: start;
+      max-width: 1200px; margin: 0 auto;
+    }
+    
+    /* ── 3D Profile Card ── */
+    .profile-card {
+      background: linear-gradient(160deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.7) 100%);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.8);
+      border-radius: 28px;
+      padding: 40px 32px; text-align: center;
+      box-shadow: 
+        0 24px 48px rgba(15,23,42,0.06),
+        0 8px 16px rgba(15,23,42,0.04),
+        inset 0 1px 0 rgba(255,255,255,1),
+        inset 0 0 20px rgba(255,255,255,0.5);
+      position: relative; overflow: hidden;
+      transform: translateZ(0);
+      will-change: transform;
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .profile-card:hover { transform: translateY(-4px); }
+    .profile-card::before {
+      content: ''; position: absolute; top: -100px; left: -100px;
+      width: 250px; height: 250px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(92,53,212,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .profile-avatar-large {
+      width: 100px; height: 100px;
+      background: linear-gradient(135deg, #6B45E8 0%, #06B6D4 100%);
+      color: white; border-radius: 32px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 38px; font-weight: 900;
+      margin: 0 auto 24px;
+      box-shadow: 
+        0 16px 32px rgba(92,53,212,0.3),
+        inset 0 2px 4px rgba(255,255,255,0.4);
+      transform: perspective(400px) rotateX(4deg);
+    }
+    
+    /* ── 3D Settings Groups ── */
+    .settings-group {
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(226,232,240,0.8);
+      border-radius: 24px;
+      margin-bottom: 32px;
+      box-shadow: 0 4px 12px rgba(15,23,42,0.03), inset 0 1px 0 rgba(255,255,255,1);
+      overflow: hidden;
+      transform: translateZ(0); transition: all 0.3s ease;
+    }
+    .settings-group:hover {
+      box-shadow: 0 12px 32px rgba(15,23,42,0.06), inset 0 1px 0 rgba(255,255,255,1);
+      border-color: var(--primary-medium);
+    }
+    .profile-row {
+      padding: 20px 24px;
+      border-bottom: 1px solid rgba(226,232,240,0.6);
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .profile-row:last-child { border-bottom: none; }
+    .profile-row:hover { background: linear-gradient(90deg, rgba(245,243,255,0.5) 0%, transparent 100%); }
+
+    /* Icons */
+    .icon-chip {
+      width: 44px; height: 44px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center; font-size: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.5);
+    }
+    .icon-chip-blue   { background: linear-gradient(135deg, #DBEAFE, #BFDBFE); color: #1D4ED8; }
+    .icon-chip-purple { background: linear-gradient(135deg, #EDE9FB, #DDD6FE); color: #5C35D4; }
+    .icon-chip-green  { background: linear-gradient(135deg, #D1FAE5, #A7F3D0); color: #047857; }
+    .icon-chip-orange { background: linear-gradient(135deg, #FEF3C7, #FDE68A); color: #B45309; }
+    .icon-chip-red    { background: linear-gradient(135deg, #FFE4E6, #FECDD3); color: #BE123C; }
+
+    /* Switch */
+    .toggle-switch {
+      width: 44px; height: 24px; background: #E2E8F0;
+      border-radius: 99px; position: relative; cursor: pointer;
+      transition: background 0.3s;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .toggle-switch::after {
+      content: ''; position: absolute; top: 2px; left: 2px;
+      width: 20px; height: 20px; background: white; border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .toggle-switch.on { background: var(--success); }
+    .toggle-switch.on::after { transform: translateX(20px); }
+
+    .stats-pills { display: flex; justify-content: center; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
+
+    @media (max-width: 900px) {
+      .profile-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body style="background: linear-gradient(180deg, #F8FAFC 0%, #EEF2F6 100%); min-height:100vh;">
+  <div class="app-layout">
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+      <div class="content-area">
+        <div class="page-header animate-up">
+          <div class="header-text">
+            <div class="label">DASHBOARD</div>
+            <h1 class="text-3xl font-extrabold mt-1" style="letter-spacing:-1px;">Account Settings</h1>
+          </div>
+        </div>
+
+        <div class="profile-grid">
+          <!-- 3D Profile Card -->
+          <aside class="animate-up" style="transition-delay:0.1s;">
+            <div class="profile-card">
+              <div class="profile-avatar-large" id="prof-initial">U</div>
+              <h2 class="text-2xl font-black text-slate-800" id="prof-name" style="letter-spacing:-0.4px;">User Name</h2>
+              <p class="text-sm font-bold mt-1" id="prof-email" style="color:var(--primary);">user@example.com</p>
+
+              <div class="stats-pills">
+                <div class="xp-pill" style="box-shadow:0 4px 10px rgba(92,53,212,0.15);">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  <span id="prof-xp" style="font-size:13px;">0 XP</span>
+                </div>
+                <div class="badge badge-lavender" id="prof-style" style="box-shadow:0 4px 10px rgba(139,92,246,0.1);">Visual Learner</div>
+              </div>
+            </div>
+          </aside>
+
+          <!-- Settings Dashboard -->
+          <div class="animate-up" style="transition-delay:0.2s;">
+            
+            <!-- Account -->
+            <div class="label mb-3 px-2">ACCOUNT DETAILS</div>
+            <div class="settings-group">
+              <div class="profile-row" onclick="document.getElementById('modal-email').classList.add('open')">
+                <div class="flex items-center gap-4">
+                  <div class="icon-chip icon-chip-blue">✉️</div>
+                  <div>
+                    <div class="font-bold text-slate-800">Email Address</div>
+                    <div class="text-xs text-slate-500 mt-1">Change your account email</div>
+                  </div>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+
+              <div class="profile-row" onclick="document.getElementById('modal-password').classList.add('open')">
+                <div class="flex items-center gap-4">
+                  <div class="icon-chip icon-chip-purple">🔐</div>
+                  <div>
+                    <div class="font-bold text-slate-800">Password & Security</div>
+                    <div class="text-xs text-slate-500 mt-1">Update authentication settings</div>
+                  </div>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+              
+              <div class="profile-row" onclick="document.getElementById('modal-style').classList.add('open')">
+                <div class="flex items-center gap-4">
+                  <div class="icon-chip icon-chip-orange">🧠</div>
+                  <div>
+                    <div class="font-bold text-slate-800">Learning Preferences</div>
+                    <div class="text-xs text-slate-500 mt-1">Adapt AI to your learning style</div>
+                  </div>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+            </div>
+
+            <!-- Support & Legal -->
+            <div class="label mb-3 px-2 mt-8">SUPPORT & LEGAL</div>
+            <div class="settings-group">
+              <div class="profile-row" onclick="window.location='help.html'">
+                <div class="flex items-center gap-4">
+                  <div class="icon-chip icon-chip-green">❓</div>
+                  <div>
+                    <div class="font-bold text-slate-800">Help Center</div>
+                    <div class="text-xs text-slate-500 mt-1">Get support and read FAQs</div>
+                  </div>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+
+              <div class="profile-row" onclick="window.location='privacy.html'">
+                <div class="flex items-center gap-4">
+                  <div class="icon-chip" style="background:#F1F5F9; color:#475569;">🛡️</div>
+                  <div>
+                    <div class="font-bold text-slate-800">Privacy Policy</div>
+                    <div class="text-xs text-slate-500 mt-1">Learn how we handle your data</div>
+                  </div>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+
+              <div class="profile-row" onclick="window.location='terms.html'">
+                <div class="flex items-center gap-4">
+                  <div class="icon-chip" style="background:#FEF3C7; color:#B45309;">📜</div>
+                  <div>
+                    <div class="font-bold text-slate-800">Terms & Conditions</div>
+                    <div class="text-xs text-slate-500 mt-1">Rules and guidelines for using LearnFlow</div>
+                  </div>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="label mb-3 px-2 mt-8" style="color:#E11D48;">DANGER ZONE</div>
+            <div class="settings-group" style="border-color:rgba(225,29,72,0.15);">
+              <div class="profile-row" onclick="logout()">
+                <div class="flex items-center gap-4">
+                  <div class="icon-chip icon-chip-red">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                  </div>
+                  <div>
+                    <div class="font-bold text-slate-800" style="color:#BE123C;">Log Out</div>
+                    <div class="text-xs text-slate-500 mt-1" style="color:#E11D48;">Sign out of this device securely</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Note: Modal code same as before -->
+  <div class="modal-overlay" id="modal-email">
+    <div class="modal">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+        <div style="width:44px;height:44px;background:var(--sky-bg);border-radius:12px;display:flex;align-items:center;justify-content:center;">📧</div>
+        <div>
+          <h2 class="text-xl font-extrabold" style="letter-spacing:-0.3px;">Change Email</h2>
+          <p class="text-xs text-muted">We'll send a verification link to your new address.</p>
+        </div>
+      </div>
+      <form id="form-email" style="display:flex;flex-direction:column;gap:16px;">
+        <div class="input-group">
+          <label class="input-label">New Email Address</label>
+          <input type="email" id="edit-email" class="input" required>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Confirm Password</label>
+          <input type="password" id="edit-email-pwd" class="input" required>
+        </div>
+        <div class="flex gap-3 mt-2">
+          <button type="button" class="btn btn-secondary flex-1" onclick="document.getElementById('modal-email').classList.remove('open')">Cancel</button>
+          <button type="submit" class="btn btn-primary flex-1" id="btn-save-email">Update Email</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-password">
+    <div class="modal">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+        <div style="width:44px;height:44px;background:var(--primary-light);border-radius:12px;display:flex;align-items:center;justify-content:center;">🔐</div>
+        <div>
+          <h2 class="text-xl font-extrabold" style="letter-spacing:-0.3px;">Update Password</h2>
+          <p class="text-xs text-muted">Ensure your account is secure with a strong password.</p>
+        </div>
+      </div>
+      <form id="form-pwd" style="display:flex;flex-direction:column;gap:16px;">
+        <div class="input-group">
+          <label class="input-label">Current Password</label>
+          <input type="password" id="edit-pwd-old" class="input" required>
+        </div>
+        <div class="input-group">
+          <label class="input-label">New Password</label>
+          <input type="password" id="edit-pwd-new" class="input" placeholder="Min. 8 chars (1 uppercase, 1 special, 1 number)" required minlength="8">
+        </div>
+        <div class="flex gap-3 mt-2">
+          <button type="button" class="btn btn-secondary flex-1" onclick="document.getElementById('modal-password').classList.remove('open')">Cancel</button>
+          <button type="submit" class="btn btn-primary flex-1" id="btn-save-pwd">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <div class="modal-overlay" id="modal-style">
+    <div class="modal">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+        <div style="width:44px;height:44px;background:var(--peach-bg);border-radius:12px;display:flex;align-items:center;justify-content:center;">🧠</div>
+        <div>
+          <h2 class="text-xl font-extrabold" style="letter-spacing:-0.3px;">Learning Style</h2>
+          <p class="text-xs text-muted">Optimize AI responses to match how you learn.</p>
+        </div>
+      </div>
+      <form id="form-style" style="display:flex;flex-direction:column;gap:12px;">
+        <select id="edit-style" class="input" required style="width:100%;height:46px;padding:0 12px;">
+          <option value="Visual">Visual (Diagrams & Images)</option>
+          <option value="Auditory">Auditory (Explanations & Podcasts)</option>
+          <option value="Reading/Writing">Reading/Writing (Text & Documentation)</option>
+          <option value="Kinesthetic">Kinesthetic (Hands-on Projects)</option>
+        </select>
+        <div class="flex gap-3 mt-4">
+          <button type="button" class="btn btn-secondary flex-1" onclick="document.getElementById('modal-style').classList.remove('open')">Cancel</button>
+          <button type="submit" class="btn btn-primary flex-1" id="btn-save-style">Save Style</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/profile.js"></script>
+  <script>
+    document.getElementById('sidebar-container').outerHTML = renderSidebar(3);
+  </script>
+</body>
+</html>

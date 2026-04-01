@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LearnFlow AI — Sign In</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ── Full-screen split layout ── */
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+
+    .login-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 100vh;
+    }
+
+    /* ── Left: 3D Hero Panel ── */
+    .login-hero {
+      background: linear-gradient(145deg, #3B0FC8 0%, #5C35D4 35%, #7C3AED 65%, #8B5CF6 100%);
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: 60px 48px;
+      position: relative; overflow: hidden;
+    }
+
+    /* Layered orbs */
+    .lh-orb {
+      position: absolute; border-radius: 50%; pointer-events: none;
+    }
+    .lh-orb-1 { width:500px;height:500px;top:-180px;right:-180px;background:rgba(255,255,255,.06); }
+    .lh-orb-2 { width:350px;height:350px;bottom:-120px;left:-100px;background:rgba(255,255,255,.04); }
+    .lh-orb-3 { width:200px;height:200px;top:40%;left:10%;background:rgba(255,255,255,.05);animation:lh-float 7s ease-in-out infinite; }
+    @keyframes lh-float { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-20px) scale(1.04)} }
+
+    /* Grid dots */
+    .lh-grid {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image: radial-gradient(rgba(255,255,255,0.12) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 30%, transparent 100%);
+    }
+
+    .lh-content { position: relative; z-index: 1; color: white; text-align: center; }
+
+    /* 3D floating card */
+    .lh-float-card {
+      background: rgba(255,255,255,.12);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 36px;
+      transform-style: preserve-3d;
+      box-shadow: 0 20px 60px rgba(0,0,0,.2), 0 8px 20px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.3);
+      animation: card-levitate 6s ease-in-out infinite;
+      perspective: 1000px;
+    }
+    @keyframes card-levitate {
+      0%,100% { transform: translateY(0) rotateX(0) rotateY(0); }
+      33%      { transform: translateY(-10px) rotateX(2deg) rotateY(-2deg); }
+      66%      { transform: translateY(-5px) rotateX(-1deg) rotateY(2deg); }
+    }
+
+    /* Mini roadmap inside floating card */
+    .mini-roadmap { display: flex; flex-direction: column; gap: 8px; min-width: 300px; }
+    .mini-step {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 10px;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.15);
+    }
+    .mini-step-icon {
+      width: 28px; height: 28px; border-radius: 7px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .mini-step-text { font-size: 12px; font-weight: 700; color: white; }
+    .mini-step-sub { font-size: 10px; color: rgba(255,255,255,.65); margin-top: 1px; }
+    .mini-step-pct { margin-left: auto; font-size: 11px; font-weight: 800; color: rgba(255,255,255,.8); }
+    .mini-progress { height: 3px; border-radius: 2px; background: rgba(255,255,255,.2); margin-top: 5px; }
+    .mini-progress-fill { height: 100%; border-radius: 2px; background: rgba(255,255,255,.9); }
+
+    .lh-headline {
+      font-size: 2rem; font-weight: 900; line-height: 1.2; letter-spacing: -.6px; margin-bottom: 12px;
+    }
+    .lh-subhead { font-size: 14px; color: rgba(255,255,255,.75); line-height: 1.65; margin-bottom: 32px; }
+
+    /* Badges row */
+    .lh-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .lh-badge {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+      border-radius: var(--radius-full); padding: 7px 14px;
+      font-size: 12px; font-weight: 700; color: white;
+    }
+
+    /* ── Right: Auth form ── */
+    .login-form-panel {
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: 60px 48px;
+      background:
+        radial-gradient(ellipse 70% 50% at 100% 0%, rgba(92,53,212,0.05) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 45% at 0% 100%, rgba(6,182,212,0.04) 0%, transparent 60%),
+        #fafbfc;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Subtle orbs on form side */
+    .form-orb {
+      position: absolute; border-radius: 50%; filter: blur(48px); pointer-events: none;
+    }
+    .form-orb-1 { width:280px;height:280px;top:-80px;right:-80px;background:radial-gradient(circle,rgba(92,53,212,.07) 0%,transparent 70%);animation:lh-float 9s ease-in-out infinite; }
+    .form-orb-2 { width:220px;height:220px;bottom:-60px;left:-60px;background:radial-gradient(circle,rgba(6,182,212,.06) 0%,transparent 70%);animation:lh-float 12s ease-in-out infinite reverse; }
+
+    .auth-card-wrap { width: 100%; max-width: 440px; position: relative; z-index: 1; }
+
+    /* Enhanced auth card */
+    .auth-card {
+      background: rgba(255,255,255,.97);
+      border: 1.5px solid rgba(226,232,240,.7);
+      border-radius: 24px;
+      padding: 40px 36px;
+      box-shadow:
+        0 32px 80px rgba(15,23,42,.10),
+        0 12px 32px rgba(15,23,42,.06),
+        0 4px 8px rgba(15,23,42,.04),
+        inset 0 1px 0 rgba(255,255,255,1);
+      position: relative;
+    }
+    .auth-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, #5C35D4, #8B5CF6, #06B6D4);
+      border-radius: 24px 24px 0 0;
+    }
+
+    .auth-logo {
+      display: flex; flex-direction: column; align-items: center;
+      margin-bottom: 28px; gap: 2px;
+    }
+    .logo-icon {
+      width: 60px; height: 60px;
+      background: linear-gradient(135deg, #6B45E8, #5C35D4, #8B5CF6);
+      border-radius: 16px; display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px;
+      box-shadow: 0 10px 28px rgba(92,53,212,.38), 0 4px 10px rgba(92,53,212,.18), inset 0 1px 0 rgba(255,255,255,.25);
+      transform: perspective(200px) translateZ(4px);
+    }
+    .logo-icon svg { width: 28px; height: 28px; color: white; }
+    .logo-brand { font-size: 1.2rem; font-weight: 900; color: var(--on-bg); letter-spacing: -.3px; }
+    .logo-tagline { font-size: 12px; color: var(--on-surface-var); font-weight: 500; margin-top: 2px; }
+
+    /* Go-back link for guests */
+    .back-to-explore {
+      display: flex; align-items: center; gap: 6px;
+      color: var(--primary); font-size: 13px; font-weight: 700; text-decoration: none;
+      margin-bottom: 20px; width: 100%; max-width: 440px; position: relative; z-index: 1;
+    }
+    .back-to-explore:hover { opacity: 0.8; }
+
+    .auth-tabs { display:flex;gap:0;background:var(--card);border-radius:var(--radius-md);padding:4px;margin-bottom:28px;border:1px solid var(--card-border); }
+    .auth-tab { flex:1;padding:10px;border-radius:var(--radius-sm);font-size:14px;font-weight:700;text-align:center;cursor:pointer;transition:var(--transition);color:var(--on-surface-var); }
+    .auth-tab.active { background:var(--surface);color:var(--primary);box-shadow:var(--shadow-sm); }
+    .auth-form { display:flex;flex-direction:column;gap:18px; }
+    .auth-divider { text-align:center;position:relative;margin:4px 0; }
+    .auth-divider::before { content:'';position:absolute;top:50%;left:0;right:0;height:1px;background:var(--divider); }
+    .auth-divider span { position:relative;background:var(--surface);padding:0 14px;font-size:12px;font-weight:600;color:var(--on-surface-var); }
+
+    /* ── Mobile: stack vertically ── */
+    @media(max-width:900px) {
+      .login-split { grid-template-columns: 1fr; }
+      .login-hero { display: none; }
+      .login-form-panel { padding: 40px 24px; min-height: 100vh; }
+    }
+
+    /* ── Password strength pills ── */
+    .pwd-strength { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+    .pwd-pill {
+      padding: 3px 9px; border-radius: 999px;
+      font-size: 11px; font-weight: 700;
+      background: #E5E7EB; color: #9CA3AF;
+      transition: background .25s, color .25s;
+    }
+    .pwd-pill.met { background: #059669; color: #fff; }
+
+    /* ── Email domain badge ── */
+    .email-domain-hint {
+      font-size: 11px; font-weight: 600; margin-top: 3px; padding-left: 4px;
+      line-height: 1.4; display: none;
+    }
+    .email-domain-hint.visible { display: block; }
+    .email-domain-hint.ok  { color: #059669; }
+    .email-domain-hint.bad { color: var(--error, #EF4444); }
+
+    /* ── OTP input strip ── */
+    .otp-hint { font-size:13px; color:var(--on-surface-var); line-height:1.55; margin-bottom:18px; text-align:center; }
+    .otp-email-display {
+      font-weight:700; display:block;
+      color: var(--primary);
+    }
+  </style>
+</head>
+<body class="landing-page">
+
+  <div class="login-split">
+    <!-- ── Left: Hero Panel ── -->
+    <div class="login-hero">
+      <div class="lh-orb lh-orb-1"></div>
+      <div class="lh-orb lh-orb-2"></div>
+      <div class="lh-orb lh-orb-3"></div>
+      <div class="lh-grid"></div>
+
+      <div class="lh-content">
+        <!-- Floating roadmap preview card -->
+        <div class="lh-float-card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span style="font-size:12px;font-weight:700;color:rgba(255,255,255,.85);">Your AI Roadmap • Frontend Developer</span>
+          </div>
+          <div class="mini-roadmap">
+            <div class="mini-step">
+              <div class="mini-step-icon" style="background:rgba(5,150,105,.25);">✓</div>
+              <div>
+                <div class="mini-step-text">Internet Basics</div>
+                <div class="mini-step-sub">6 topics completed</div>
+                <div class="mini-progress"><div class="mini-progress-fill" style="width:100%;"></div></div>
+              </div>
+              <div class="mini-step-pct">100%</div>
+            </div>
+            <div class="mini-step" style="background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.35);">
+              <div class="mini-step-icon" style="background:rgba(139,92,246,.4);">▶</div>
+              <div>
+                <div class="mini-step-text">HTML & CSS</div>
+                <div class="mini-step-sub">5 / 10 topics done</div>
+                <div class="mini-progress"><div class="mini-progress-fill" style="width:50%;"></div></div>
+              </div>
+              <div class="mini-step-pct">50%</div>
+            </div>
+            <div class="mini-step" style="opacity:.6;">
+              <div class="mini-step-icon" style="background:rgba(255,255,255,.1);">🔒</div>
+              <div>
+                <div class="mini-step-text">JavaScript</div>
+                <div class="mini-step-sub">Locked — complete above first</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h1 class="lh-headline">Learn smarter<br>with AI by your side.</h1>
+        <p class="lh-subhead">Personalized roadmaps, a 24/7 AI Mentor,<br>and live career insights — all in one place.</p>
+
+        <div class="lh-badges">
+          <div class="lh-badge">🚀 AI Roadmaps</div>
+          <div class="lh-badge">🤖 24/7 Mentor</div>
+          <div class="lh-badge">📊 Career Data</div>
+          <div class="lh-badge">🏆 XP &amp; Levels</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Right: Auth Form ── -->
+    <div class="login-form-panel">
+      <div class="form-orb form-orb-1"></div>
+      <div class="form-orb form-orb-2"></div>
+
+      <a href="index.html" class="back-to-explore">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back to Home
+      </a>
+
+      <div class="auth-card-wrap">
+        <div class="auth-card animate-up">
+          <div class="auth-logo">
+            <div class="logo-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+            </div>
+            <div class="logo-brand">LearnFlow AI</div>
+            <div class="logo-tagline">Unlock your potential</div>
+          </div>
+
+          <!-- Auth Selection Tabs -->
+          <div class="auth-tabs" id="auth-tabs-container">
+            <div class="auth-tab active" id="tab-login">Log In</div>
+            <div class="auth-tab" id="tab-signup">Sign Up</div>
+          </div>
+
+          <!-- Login View -->
+          <div id="view-login">
+            <form class="auth-form" id="form-login">
+              <div class="input-group">
+                <label class="input-label">Email</label>
+                <input type="email" class="input" id="lo-email" placeholder="name@example.com" required>
+              </div>
+              <div class="input-group">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <label class="input-label">Password</label>
+                  <a href="#" class="text-xs font-bold text-primary" id="link-forgot" style="text-decoration:none;">Forgot?</a>
+                </div>
+                <div style="position:relative;">
+                  <input type="password" class="input" id="lo-pwd" placeholder="••••••••" required style="width:100%;padding-right:40px;">
+                  <button type="button" class="pwd-toggle" data-target="lo-pwd" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--on-surface-var);padding:0;display:flex;align-items:center;justify-content:center;z-index:10;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                  </button>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary mt-2" style="width:100%;height:50px;font-size:15px;border-radius:var(--radius-md);">Sign In</button>
+            </form>
+          </div>
+
+          <!-- Signup View: Step 1 — Fill Details -->
+          <div id="view-signup" class="hidden">
+            <form class="auth-form" id="form-signup">
+              <div class="input-group">
+                <label class="input-label">Full Name</label>
+                <input type="text" class="input" id="su-name" placeholder="John Doe" required>
+              </div>
+              <div class="input-group">
+                <label class="input-label">Email</label>
+                <input type="email" class="input" id="su-email" placeholder="name@gmail.com" required autocomplete="email">
+                <div class="email-domain-hint" id="su-email-hint"></div>
+              </div>
+              <div class="input-group">
+                <label class="input-label">Password</label>
+                <div style="position:relative;">
+                  <input type="password" class="input" id="su-pwd" placeholder="Min. 8 chars" required style="width:100%;padding-right:40px;">
+                  <button type="button" class="pwd-toggle" data-target="su-pwd" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--on-surface-var);padding:0;display:flex;align-items:center;justify-content:center;z-index:10;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                  </button>
+                </div>
+                <div class="pwd-strength" id="su-pwd-strength">
+                  <span class="pwd-pill" id="sp-upper">A-Z</span>
+                  <span class="pwd-pill" id="sp-lower">a-z</span>
+                  <span class="pwd-pill" id="sp-digit">0-9</span>
+                  <span class="pwd-pill" id="sp-sym">#@!</span>
+                  <span class="pwd-pill" id="sp-len">8+</span>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary mt-2" style="width:100%;height:50px;font-size:15px;border-radius:var(--radius-md);" id="su-send-btn">Create Account</button>
+            </form>
+          </div>
+
+          <!-- Signup View: Step 2 — OTP Verify -->
+          <div id="view-signup-otp" class="hidden">
+            <div style="text-align:center;margin-bottom:20px;">
+              <div style="width:48px;height:48px;background:var(--primary-light);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              </div>
+              <h2 class="text-xl font-bold">Verify your email</h2>
+              <p class="otp-hint">We sent a 6-digit code to<span class="otp-email-display" id="su-otp-email-display"></span></p>
+            </div>
+            <form class="auth-form" id="form-signup-otp">
+              <div class="input-group">
+                <label class="input-label">6-Digit Code</label>
+                <input type="text" class="input" id="su-otp-code" placeholder="e.g. 123456" maxlength="6" inputmode="numeric" pattern="[0-9]{6}" required style="letter-spacing:6px;font-size:22px;text-align:center;">
+              </div>
+              <button type="submit" class="btn btn-primary" id="su-otp-verify-btn" style="width:100%;height:50px;font-size:15px;border-radius:var(--radius-md);">Verify &amp; Create Account</button>
+              <div style="text-align:center;margin-top:8px;">
+                <span style="font-size:13px;color:var(--on-surface-var);">Didn't receive it? </span>
+                <button type="button" class="text-xs font-bold text-primary" id="su-resend-btn" style="background:none;border:none;cursor:pointer;font-size:13px;">Resend Code</button>
+              </div>
+              <button type="button" class="btn btn-ghost w-full" id="su-back-btn" style="margin-top:4px;">← Change details</button>
+            </form>
+          </div>
+
+          <!-- Forgot Password View -->
+          <div id="view-forgot" class="hidden">
+            <div style="text-align:center;margin-bottom:24px;">
+              <div style="width:48px;height:48px;background:var(--peach);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--peach-on)" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </div>
+              <h2 class="text-xl font-bold">Reset Password</h2>
+              <p class="text-sm text-muted mt-2" style="line-height:1.5;">We'll send a reset code to your email.</p>
+            </div>
+            <form class="auth-form" id="form-forgot">
+              <div class="input-group">
+                <label class="input-label">Email</label>
+                <input type="email" class="input" id="fp-email" required>
+              </div>
+              <div id="fp-code-box" class="hidden">
+                <div class="input-group">
+                  <label class="input-label">Reset Code</label>
+                  <input type="text" class="input" id="fp-code">
+                </div>
+              </div>
+              <div id="fp-pwd-box" class="hidden">
+                <div class="input-group">
+                  <label class="input-label">New Password</label>
+                  <div style="position:relative;">
+                    <input type="password" class="input" id="fp-pwd" placeholder="Min. 8 chars (1 uppercase, 1 special, 1 number)" minlength="8" style="width:100%;padding-right:40px;">
+                    <button type="button" class="pwd-toggle" data-target="fp-pwd" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--on-surface-var);padding:0;display:flex;align-items:center;justify-content:center;z-index:10;">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="btn btn-primary" id="fp-send-btn" style="width:100%;height:50px;">Send Reset Code</button>
+              <button type="submit" class="btn btn-primary hidden" id="fp-reset-btn" style="width:100%;height:50px;">Update Password</button>
+              <button type="button" class="btn btn-ghost w-full link-back">← Back to Login</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onboarding Modal (unchanged) -->
+  <div class="modal-overlay" id="modal-onboarding">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="step-view" id="ob-step-1">
+        <div class="step-indicator" id="ob-dots-1">
+          <div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div>
+        </div>
+        <h2 class="text-2xl font-black mb-1">What's your goal?</h2>
+        <p class="text-sm text-muted mb-6" style="line-height:1.5;">We'll personalize your learning path.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px;">
+          <div class="card ob-option" data-type="goal" data-val="Career Change" style="text-align:center;padding:20px 12px;cursor:pointer;"><div style="font-size:28px;margin-bottom:10px;">🚀</div><div class="font-bold text-sm">Career Change</div></div>
+          <div class="card ob-option" data-type="goal" data-val="Skill Up" style="text-align:center;padding:20px 12px;cursor:pointer;"><div style="font-size:28px;margin-bottom:10px;">📈</div><div class="font-bold text-sm">Skill Up</div></div>
+          <div class="card ob-option" data-type="goal" data-val="Academic" style="text-align:center;padding:20px 12px;cursor:pointer;"><div style="font-size:28px;margin-bottom:10px;">🎓</div><div class="font-bold text-sm">Academic</div></div>
+          <div class="card ob-option" data-type="goal" data-val="Personal" style="text-align:center;padding:20px 12px;cursor:pointer;"><div style="font-size:28px;margin-bottom:10px;">💡</div><div class="font-bold text-sm">Personal</div></div>
+        </div>
+        <button class="btn btn-primary w-full mt-4 ob-next" style="height:50px;">Continue →</button>
+      </div>
+      <div class="step-view hidden" id="ob-step-2">
+        <div class="step-indicator"><div class="step-dot"></div><div class="step-dot active"></div><div class="step-dot"></div></div>
+        <h2 class="text-2xl font-black mb-1">Your experience level</h2>
+        <p class="text-sm text-muted mb-6" style="line-height:1.5;">How much do you already know?</p>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:8px;">
+          <div class="card ob-option" data-type="experience_level" data-val="Beginner" style="cursor:pointer;padding:18px 20px;"><div class="font-bold mb-1">🌱 Beginner</div><div class="text-xs text-muted">Just starting my journey</div></div>
+          <div class="card ob-option" data-type="experience_level" data-val="Intermediate" style="cursor:pointer;padding:18px 20px;"><div class="font-bold mb-1">⚡ Intermediate</div><div class="text-xs text-muted">I have some core knowledge</div></div>
+          <div class="card ob-option" data-type="experience_level" data-val="Advanced" style="cursor:pointer;padding:18px 20px;"><div class="font-bold mb-1">🔥 Advanced</div><div class="text-xs text-muted">Looking to master specifics</div></div>
+        </div>
+        <button class="btn btn-primary w-full mt-4 ob-next" style="height:50px;">Continue →</button>
+      </div>
+      <div class="step-view hidden" id="ob-step-3">
+        <div class="step-indicator"><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot active"></div></div>
+        <h2 class="text-2xl font-black mb-1">How do you learn best?</h2>
+        <p class="text-sm text-muted mb-6" style="line-height:1.5;">We'll adapt our content to match your style.</p>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:8px;">
+          <div class="card ob-option" data-type="learning_style" data-val="Visual Learner" style="cursor:pointer;padding:18px 20px;"><div class="font-bold mb-1">🎨 Visual</div><div class="text-xs text-muted">Videos, diagrams, code blocks</div></div>
+          <div class="card ob-option" data-type="learning_style" data-val="Practical Learner" style="cursor:pointer;padding:18px 20px;"><div class="font-bold mb-1">🛠 Hands-on</div><div class="text-xs text-muted">Building projects, challenges</div></div>
+          <div class="card ob-option" data-type="learning_style" data-val="Theoretical Learner" style="cursor:pointer;padding:18px 20px;"><div class="font-bold mb-1">📖 Theoretical</div><div class="text-xs text-muted">Documentation, articles, reading</div></div>
+        </div>
+        <button class="btn btn-primary w-full mt-4 ob-next" style="height:50px;">Finish Setup ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/auth.js?v=2"></script>
+  <script>
+    // Animate the auth card in
+    setTimeout(() => document.querySelector('.auth-card')?.classList.add('visible'), 100);
+
+    // Auto-switch tab from URL param
+    const params = new URLSearchParams(location.search);
+    if (params.get('tab') === 'signup') {
+      document.getElementById('tab-login').classList.remove('active');
+      document.getElementById('tab-signup').classList.add('active');
+      document.getElementById('view-login').classList.add('hidden');
+      document.getElementById('view-signup').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>

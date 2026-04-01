@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LearnFlow AI — Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .stats-row { display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:32px; }
+    @media(max-width:600px){ .stats-row{grid-template-columns:repeat(3,1fr);gap:10px} .quick-grid{grid-template-columns:1fr} .quick-card-tall{min-height:140px} }
+
+    /* â”€â”€ 3D Stat Cards â”€â”€ */
+    .stat-card-3d {
+      background: linear-gradient(160deg, rgba(255,255,255,0.95) 0%, rgba(248,249,252,0.95) 100%);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(226,232,240,0.8);
+      border-radius: var(--radius-lg);
+      padding: 24px 16px;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(15,23,42,.04), inset 0 1px 0 rgba(255,255,255,1);
+      transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+      transform: translateZ(0);
+    }
+    .stat-card-3d::before {
+      content:'';position:absolute;top:0;left:0;right:0;height:4px;border-radius:var(--radius-lg) var(--radius-lg) 0 0;
+      opacity: 0.8; transition: opacity 0.3s;
+    }
+    .stat-card-3d.xp::before { background:var(--gradient-primary); }
+    .stat-card-3d.roads::before { background:linear-gradient(90deg,#059669,#10B981); }
+    .stat-card-3d.lvl::before { background:linear-gradient(90deg,#f59e0b,#F97316); }
+    .stat-card-3d:hover {
+      transform: perspective(1000px) translateY(-8px) rotateX(4deg) scale(1.02);
+      box-shadow: 0 20px 40px rgba(15,23,42,.08), 0 8px 16px rgba(15,23,42,.04), inset 0 1px 0 rgba(255,255,255,1);
+      border-color: rgba(92,53,212,0.2);
+    }
+    .stat-card-3d.xp:hover { box-shadow: 0 20px 40px rgba(92,53,212,.15), inset 0 1px 0 rgba(255,255,255,1); }
+    .stat-card-3d:hover::before { opacity: 1; height: 5px; }
+    
+    .stat-card-3d .stat-value-3d {
+      font-size: 2.2rem; font-weight: 900; letter-spacing: -1.5px; line-height: 1;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .stat-card-3d.roads .stat-value-3d { background:linear-gradient(90deg,#059669,#10B981); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+    .stat-card-3d.lvl .stat-value-3d { background:linear-gradient(90deg,#f59e0b,#F97316); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+    .stat-card-3d .stat-label-3d { font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--on-surface-var);margin-top:6px; }
+
+    /* â”€â”€ XP Progress Ring â”€â”€ */
+    .xp-ring-wrap {
+      display:flex;align-items:center;gap:16px;padding:20px 24px;
+      background:linear-gradient(135deg,var(--primary) 0%,#8B5CF6 100%);
+      border-radius:var(--radius-lg);margin-bottom:24px;
+      box-shadow:0 8px 24px rgba(92,53,212,.32),inset 0 1px 0 rgba(255,255,255,.15);
+    }
+    .xp-ring-svg { flex-shrink:0; }
+    .xp-ring-bg { fill:none;stroke:rgba(255,255,255,.2);stroke-width:6px; }
+    .xp-ring-fill { fill:none;stroke:white;stroke-width:6px;stroke-linecap:round;stroke-dasharray:163;stroke-dashoffset:163;transition:stroke-dashoffset 1.6s cubic-bezier(0.4,0,0.2,1); }
+    .xp-ring-text-wrap { color:white; }
+    .xp-ring-level { font-size:12px;font-weight:700;opacity:.75;text-transform:uppercase;letter-spacing:.06em; }
+    .xp-ring-xp { font-size:22px;font-weight:900;letter-spacing:-0.5px;margin:2px 0; }
+    .xp-ring-next { font-size:12px;opacity:.75; }
+
+    /* â”€â”€ Daily Tip Card â”€â”€ */
+    .daily-tip {
+      display:flex;align-items:flex-start;gap:16px;padding:20px 24px;
+      background: linear-gradient(135deg, rgba(240,249,255,0.9) 0%, rgba(224,242,254,0.7) 100%);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(59,130,246,0.3); border-radius: var(--radius-lg); margin-bottom: 24px;
+      box-shadow: 0 8px 24px rgba(59,130,246,0.1), inset 0 1px 0 rgba(255,255,255,1);
+      animation: tip-slide-in .5s cubic-bezier(0.34,1.2,0.64,1);
+      transform: translateZ(0); transition: transform 0.3s;
+    }
+    .daily-tip:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 12px 32px rgba(59,130,246,0.15), inset 0 1px 0 rgba(255,255,255,1); }
+    @keyframes tip-slide-in { from{opacity:0;transform:translateX(-12px)} to{opacity:1;transform:translateX(0)} }
+    .tip-icon { font-size:26px;flex-shrink:0;margin-top:2px; filter: drop-shadow(0 4px 6px rgba(59,130,246,0.2)); }
+    .tip-title { font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--sky-on);margin-bottom:4px; }
+    .tip-text { font-size:14px;font-weight:500;color:var(--sky-on);line-height:1.6;opacity:.9; }
+
+
+
+    /* â”€â”€ Suggested Topics â”€â”€ */
+    .suggested-section { margin-top:28px; }
+    .suggested-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px; }
+    @media(max-width:600px){.suggested-grid{grid-template-columns:1fr}}
+    .suggested-card {
+      display:flex;align-items:center;gap:12px;padding:14px 16px;
+      background:linear-gradient(160deg,#fff 0%,#f9fafc 100%);
+      border:1.5px solid var(--card-border);border-radius:var(--radius-md);cursor:pointer;
+      transition:var(--transition);
+      box-shadow:0 2px 8px rgba(15,23,42,.05),inset 0 1px 0 rgba(255,255,255,.9);
+    }
+    .suggested-card:hover {
+      transform:translateY(-2px) scale(1.01);
+      border-color:var(--primary-medium);
+      box-shadow:0 8px 20px rgba(92,53,212,.12),inset 0 1px 0 rgba(255,255,255,1);
+    }
+    .suggested-icon { width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0; }
+    .suggested-title { font-size:13px;font-weight:700;color:var(--on-bg);margin-bottom:2px; }
+    .suggested-sub { font-size:11px;color:var(--on-surface-var); }
+
+    /* â”€â”€ Section header â”€â”€ */
+    .section-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:14px; }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+      <div class="content-area">
+
+        <!-- Header -->
+        <div class="greeting-header animate-up">
+          <div>
+            <div class="label">OVERVIEW</div>
+            <h1 class="text-3xl font-extrabold mt-1" id="user-greeting" style="letter-spacing:-1px;">Hi, User ðŸ‘‹</h1>
+          </div>
+          <div class="xp-pill flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            <span class="font-bold" id="user-xp">0 XP</span>
+            <div class="level-badge" id="user-level-badge">1</div>
+          </div>
+        </div>
+
+        <!-- XP Ring Banner -->
+        <div class="xp-ring-wrap animate-up">
+          <svg class="xp-ring-svg" width="64" height="64" viewBox="0 0 64 64">
+            <circle class="xp-ring-bg" cx="32" cy="32" r="26"/>
+            <circle class="xp-ring-fill" id="xp-ring" cx="32" cy="32" r="26" transform="rotate(-90 32 32)"/>
+            <text x="32" y="37" text-anchor="middle" fill="white" font-size="13" font-weight="900" id="xp-ring-text">0</text>
+          </svg>
+          <div class="xp-ring-text-wrap">
+            <div class="xp-ring-level">Level <span id="xp-ring-level">1</span></div>
+            <div class="xp-ring-xp"><span id="xp-ring-num">0</span> XP this week</div>
+            <div class="xp-ring-next"><span id="xp-ring-toend">100</span> XP to next level</div>
+          </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="stats-row animate-up">
+          <div class="stat-card-3d xp">
+            <div class="stat-value-3d" id="stat-xp">0</div>
+            <div class="stat-label-3d">Total XP</div>
+          </div>
+          <div class="stat-card-3d roads">
+            <div class="stat-value-3d" id="stat-roadmaps">0</div>
+            <div class="stat-label-3d">Learning Paths</div>
+          </div>
+          <div class="stat-card-3d lvl">
+            <div class="stat-value-3d" id="stat-level">1</div>
+            <div class="stat-label-3d">Level</div>
+          </div>
+        </div>
+
+
+        <!-- Daily Tip -->
+        <div class="daily-tip animate-up" id="daily-tip-box">
+          <span class="tip-icon">💡</span>
+          <div>
+            <div class="tip-title">Tip of the Day</div>
+            <div class="tip-text" id="daily-tip-text">Loading your personalized tip...</div>
+          </div>
+        </div>
+
+        <!-- Hero Banner -->
+        <div class="hero-banner animate-up" onclick="window.location='companion.html'">
+          <div class="hero-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <div style="position:relative;z-index:1;">
+            <h2 class="text-lg font-bold" style="color:white;">Generate Your Roadmap</h2>
+            <p class="text-sm mt-1" style="color:rgba(255,255,255,0.75);line-height:1.5;">Create a personalized AI-powered learning path tailored to your goals.</p>
+            <div style="margin-top:16px;display:inline-flex;align-items:center;gap:6px;color:white;font-size:13px;font-weight:700;opacity:.9;">
+              Start Now
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="section-gap">
+          <div class="section-header animate-up">
+            <span class="label">QUICK ACTIONS</span>
+          </div>
+          <div class="quick-grid animate-up">
+            <div class="quick-card-tall card-sky" onclick="window.location='companion.html'">
+              <div style="position:relative;z-index:1;">
+                <div style="width:44px;height:44px;background:rgba(30,64,175,.12);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--sky-on)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="3"/><path d="M12 8v3"/><line x1="8" y1="15" x2="8" y2="17"/><line x1="16" y1="15" x2="16" y2="17"/></svg>
+                </div>
+                <h3 class="text-base font-bold" style="color:var(--sky-on);letter-spacing:-.2px;">AI Mentor</h3>
+                <p class="text-xs mt-1" style="color:var(--sky-on);opacity:.75;line-height:1.5;">Ask questions &amp; get smart answers instantly</p>
+              </div>
+            </div>
+            <div class="quick-stack">
+              <div class="quick-card-sm card-mint" onclick="window.location='companion.html?tab=quiz'">
+                <div style="width:38px;height:38px;background:rgba(6,95,70,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--mint-on)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+                </div>
+                <div>
+                  <div class="text-base font-bold" style="color:var(--mint-on);">Skill Quiz</div>
+                  <div class="text-xs" style="color:var(--mint-on);opacity:.7;">Test your knowledge</div>
+                </div>
+              </div>
+              <div class="quick-card-sm card-lavender" onclick="window.location='careers.html'">
+                <div style="width:38px;height:38px;background:rgba(69,39,160,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--lavender-on)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+                </div>
+                <div>
+                  <div class="text-base font-bold" style="color:var(--lavender-on);">Careers</div>
+                  <div class="text-xs" style="color:var(--lavender-on);opacity:.7;">Browse job insights</div>
+                </div>
+              </div>
+              <div class="quick-card-sm" onclick="window.location='explore.html'" style="background:linear-gradient(135deg,rgba(124,58,237,0.08),rgba(139,92,246,0.12));border:1px solid rgba(124,58,237,0.18);cursor:pointer;border-radius:var(--radius-lg);padding:14px 16px;display:flex;align-items:center;gap:12px;transition:all .2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+                <div style="width:38px;height:38px;background:rgba(92,53,212,.12);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </div>
+                <div>
+                  <div class="text-base font-bold" style="color:var(--primary);">Explore Paths</div>
+                  <div class="text-xs" style="color:var(--primary);opacity:.7;">Browse 70+ courses</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- My Learning -->
+        <div class="section-gap">
+          <div class="section-header animate-up">
+            <span class="label">MY LEARNING</span>
+            <a href="explore.html" style="font-size:13px;font-weight:700;color:var(--primary);text-decoration:none;">Browse all →</a>
+          </div>
+          <div id="learning-list" class="animate-up">
+            <div class="skeleton" style="width:100%;height:78px;border-radius:18px;margin-bottom:10px;"></div>
+            <div class="skeleton" style="width:100%;height:78px;border-radius:18px;opacity:.6;"></div>
+          </div>
+        </div>
+
+        <!-- Suggested for You -->
+        <div class="suggested-section animate-up">
+          <div class="section-header">
+            <span class="label">🌟 Suggested for You</span>
+            <a href="explore.html" style="font-size:13px;font-weight:700;color:var(--primary);text-decoration:none;">Browse all →</a>
+          </div>
+          <div class="suggested-grid">
+            <div class="suggested-card" onclick="openSuggestedPath('Web Dev')">
+              <div class="suggested-icon" style="background:var(--sky);">🌐</div>
+              <div><div class="suggested-title">Web Dev</div><div class="suggested-sub">11 modules · 22h</div></div>
+            </div>
+            <div class="suggested-card" onclick="openSuggestedPath('AI/ML')">
+              <div class="suggested-icon" style="background:var(--lavender);">🤖</div>
+              <div><div class="suggested-title">AI / ML</div><div class="suggested-sub">13 modules · 25h</div></div>
+            </div>
+            <div class="suggested-card" onclick="openSuggestedPath('DSA')">
+              <div class="suggested-icon" style="background:var(--mint);">🧠</div>
+              <div><div class="suggested-title">DSA</div><div class="suggested-sub">12 modules · 30h</div></div>
+            </div>
+            <div class="suggested-card" onclick="openSuggestedPath('Android Dev')">
+              <div class="suggested-icon" style="background:var(--peach);">📱</div>
+              <div><div class="suggested-title">Android Dev</div><div class="suggested-sub">11 modules · 20h</div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="js/api.js?v=1770000003"></script>
+  <script src="js/app.js?v=1770000003"></script>
+  <script src="js/roadmaps-data.js?v=1770000003"></script>
+  <script src="js/dashboard.js?v=1770000003"></script>
+  <script>
+    // Open a suggested course: cache its roadmap data then navigate
+    function openSuggestedPath(title) {
+      const data = ROADMAPS_DATA[title];
+      if (!data) { window.location.href = 'explore.html'; return; }
+      const id = 'static_' + title.replace(/\s+/g,'_').toLowerCase();
+      const rm = {
+        id, goal_title: title,
+        description: data.desc, difficulty: data.diff, hours_per_week: data.hrs,
+        is_static: true, source: 'Curated Path',
+        modules: data.mods.map((m,mi) => ({
+          id:`m${mi}`, title:m.t, order:mi,
+          topics: m.tps.map((tp,ti) => ({id:`m${mi}_t${ti}`,title:tp,description:`Learn ${tp} as part of ${m.t}`,resources:[],order:ti,is_done:false}))
+        }))
+      };
+      let cache = JSON.parse(localStorage.getItem(userKey('roadmaps_cache')) || '[]');
+      cache = cache.filter(c => c.id !== id);
+      cache.unshift({ id, goal_title: title, data: rm });
+      localStorage.setItem(userKey('roadmaps_cache'), JSON.stringify(cache));
+      window.location.href = `roadmap.html?id=${id}`;
+    }
+  </script>
+  <script>
+    document.getElementById('sidebar-container').outerHTML = renderSidebar(0);
+
+    const TIPS = [
+      "💡 <b>The Feynman Technique:</b> Explain what you just learned simply, as if teaching a beginner. It exposes your weak spots instantly.",
+      "🧠 <b>Spaced Repetition:</b> Reviewing material 1, 3, and 7 days later locks it into your long-term memory permanently.",
+      "⚡ <b>Active Recall:</b> Stop rereading your notes. Close them and try to write down 3 bullet points from memory. This builds real mastery.",
+      "🛠️ <b>Build to Learn:</b> Tutorials only teach syntax. Break things, read errors, and build small projects—that's how pros actually learn.",
+      "🍅 <b>Pomodoro Focus:</b> Study hard for 25 minutes, then walk away for 5. Your brain processes the concepts during the breaks.",
+      "🤝 <b>Learn in Public:</b> Write a blog post or share your progress online. Explaining your journey forces a deeper understanding.",
+      "🌱 <b>Consistency > Intensity:</b> Studying 30 minutes every single day is mathematically proven to be far superior to one 5-hour Sunday session."
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = getUser();
+      if (user) {
+        const xp = user.xp || 0;
+        const level = Math.floor(xp / 100) + 1;
+        const nextLevelXP = level * 100;
+        const xpInLevel = xp % 100;
+
+        // Update stat cards with animation
+        ['stat-xp','stat-level'].forEach(id => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          const target = id === 'stat-xp' ? xp : level;
+          let v = 0; const step = Math.ceil(target / 30);
+          const t = setInterval(() => { v = Math.min(v + step, target); el.textContent = v; if (v >= target) clearInterval(t); }, 40);
+        });
+
+        // XP ring
+        const ring = document.getElementById('xp-ring');
+        const ringText = document.getElementById('xp-ring-text');
+        const ringNum = document.getElementById('xp-ring-num');
+        const ringLvl = document.getElementById('xp-ring-level');
+        const ringNext = document.getElementById('xp-ring-toend');
+        if (ring) {
+          const pct = Math.min(xpInLevel / 100, 1);
+          setTimeout(() => { ring.style.strokeDashoffset = 163 - (163 * pct); }, 400);
+        }
+        if (ringText) ringText.textContent = level;
+        if (ringLvl) ringLvl.textContent = level;
+        if (ringNum) ringNum.textContent = `${xp}`;
+        if (ringNext) ringNext.textContent = nextLevelXP - xp;
+      }
+
+      // Daily tip (deterministic by day)
+      const tipEl = document.getElementById('daily-tip-text');
+      if (tipEl) {
+        const today = new Date();
+        const idx = today.getDate() % TIPS.length;
+        tipEl.innerHTML = TIPS[idx];
+      }
+
+      // Animate elements on scroll
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.animate-up').forEach((el, i) => {
+        el.style.transitionDelay = `${i * 0.05}s`;
+        observer.observe(el);
+      });
+    });
+  </script>
+</body>
+</html>
+
