@@ -1,23 +1,13 @@
-/* LearnFlow AI API Client — Flask on port 8001 (see backend/main.py)
- * Base URL resolution:
- *   1) localStorage 'learnflow_api_base' (e.g. http://192.168.1.10:8001) for phone / another PC
- *   2) If the page is opened via http(s) with a LAN host, same host :8001 (Live Server + backend on one PC)
- *   3) Else http://127.0.0.1:8001 (file:// or localhost — backend on this machine)
+/* LearnFlow AI API Client
+ * Backend is hosted at a fixed remote server: http://180.235.121.253:8159
+ * Override at runtime via localStorage key 'learnflow_api_base' if needed.
  */
+const BACKEND_BASE_URL = 'http://180.235.121.253:8159';
+
 function apiBaseUrl() {
   const stored = localStorage.getItem('learnflow_api_base');
   if (stored && stored.trim()) return stored.replace(/\/$/, '');
-  const { protocol, hostname } = window.location;
-  if (
-    (protocol === 'http:' || protocol === 'https:') &&
-    hostname &&
-    hostname !== 'localhost' &&
-    hostname !== '127.0.0.1'
-  ) {
-    // Backend is HTTP on 8001 (Flask). Always use http here; HTTPS page + http API may be blocked by the browser (mixed content).
-    return `http://${hostname}:8001`;
-  }
-  return 'http://127.0.0.1:8001';
+  return BACKEND_BASE_URL;
 }
 
 const FETCH_TIMEOUT_MS = 30000;
